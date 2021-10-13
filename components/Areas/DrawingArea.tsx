@@ -16,7 +16,7 @@ const DrawingArea = () => {
   const [points, setPoints] = useState([]);
   const [path, setPath] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [elements, setElements] = useState([]);
+  const [elements, setElements] = useState<HTMLElement>([]);
   const [action, setAction] = useState("none");
   const [toolType, setToolType] = useState("pencil");
   const [selectedElement, setSelectedElement] = useState<HTMLElement>(null);
@@ -303,8 +303,8 @@ const DrawingArea = () => {
       const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
       updateElement(id, x1, y1, x2, y2, type, strokeWidth, colorWidth.hex);
     } else if (action === "sketching") {
-      const canvas = document.getElementById("canvas");
-      const context = canvas.getContext("2d");
+      const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+      const context = canvas.getContext("2d") as CanvasRenderingContext2D;
       context.closePath();
       const element = points;
       setPoints([]);
