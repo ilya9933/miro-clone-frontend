@@ -10,16 +10,18 @@ import {
   resizedCoordinates,
   midPointBtw,
   getElementAtPosition,
-} from "./components/element";
+  DrawingElement,
+} from "../Drawing/element";
+import { Drawable } from "roughjs/bin/core";
 
 const DrawingArea = () => {
-  const [points, setPoints] = useState([]);
+  const [points, setPoints] = useState<any[]>([]);
   const [path, setPath] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [elements, setElements] = useState<HTMLElement>([]);
+  const [elements, setElements] = useState<DrawingElement[]>([]);
   const [action, setAction] = useState("none");
   const [toolType, setToolType] = useState("pencil");
-  const [selectedElement, setSelectedElement] = useState<HTMLElement>(null);
+  const [selectedElement, setSelectedElement] = useState<DrawingElement>();
   const [colorWidth, setColorWidth] = useState({
     hex: "#000",
     hsv: {},
@@ -72,12 +74,11 @@ const DrawingArea = () => {
     if (path !== undefined) drawpath();
 
     context.lineWidth = shapeWidth;
-
-    elements.forEach(({ roughElement }: { roughElement: any }) => {
+    //@ts-ignore
+    elements.forEach(({ roughElement }) => {
       context.globalAlpha = 1;
-      //console.log(roughElement);
-      context.strokeStyle = roughElement.options.stroke;
-      roughCanvas.draw(roughElement);
+      context.strokeStyle = roughElement?.options.stroke ?? "";
+      roughCanvas.draw(roughElement as Drawable);
     });
 
     return () => {
@@ -130,7 +131,7 @@ const DrawingArea = () => {
       });
     });
     const newElements = elements;
-    newElements.forEach((ele: any, index) => {
+    newElements.forEach((ele: any, index: any) => {
       if (
         clientX >= ele.x1 &&
         clientX <= ele.x2 &&
@@ -208,7 +209,7 @@ const DrawingArea = () => {
 
         //@ts-ignore
         setElements((prevState) => [...prevState, element]);
-        setSelectedElement(element);
+        setSelectedElement(element as DrawingElement);
       }
     }
   };
@@ -219,7 +220,8 @@ const DrawingArea = () => {
     const { clientX, clientY } = e;
     if (toolType === "selection") {
       const element = getElementAtPosition(clientX, clientY, elements);
-      e.target.style.cursor = element
+      const target = e.target as HTMLElement;
+      target.style.cursor = element
         ? cursorForPosition(element.position)
         : "default";
     }
@@ -265,11 +267,11 @@ const DrawingArea = () => {
         offsetY,
         shapeWidth,
         strokeColor,
-      } = selectedElement;
+      } = selectedElement as DrawingElement;
       const offsetWidth = x2 - x1;
       const offsetHeight = y2 - y1;
-      const newX = clientX - offsetX;
-      const newY = clientY - offsetY;
+      const newX = clientX - (offsetX ?? 0);
+      const newY = clientY - (offsetY ?? 0);
       updateElement(
         id,
         newX,
@@ -281,17 +283,19 @@ const DrawingArea = () => {
         strokeColor
       );
     } else if (action === "resize") {
-      const { id, type, position, ...coordinates } = selectedElement;
+      const { id, type, position, ...coordinates } =
+        selectedElement as DrawingElement;
       const { x1, y1, x2, y2 } = resizedCoordinates(
         clientX,
         clientY,
-        position,
+        position as string,
         coordinates
-      );
+      ) as any;
       updateElement(id, x1, y1, x2, y2, type, shapeWidth, colorWidth.hex);
     }
   };
   const handleMouseUp = () => {
+    if (!selectedElement) return;
     if (action === "resize") {
       const index = selectedElement.id;
       const { id, type, strokeWidth, strokeColor } = elements[index];
@@ -308,6 +312,7 @@ const DrawingArea = () => {
       context.closePath();
       const element = points;
       setPoints([]);
+      //@ts-ignore
       setPath((prevState) => [...prevState, element]); //tuple
       setIsDrawing(false);
     }
@@ -337,11 +342,17 @@ const DrawingArea = () => {
         onMouseUp={handleMouseUp}
         onTouchStart={(e) => {
           var touch = e.touches[0];
-          handleMouseDown({ clientX: touch.clientX, clientY: touch.clientY });
+          handleMouseDown({
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+          } as any);
         }}
         onTouchMove={(e) => {
           var touch = e.touches[0];
-          handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+          handleMouseMove({
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+          } as any);
         }}
         onTouchEnd={handleMouseUp}
       >

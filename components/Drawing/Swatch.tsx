@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { styles } from "../theme/styles";
+import { styles } from "../../theme/styles";
 import {
   Line,
   Resize,
@@ -13,9 +13,21 @@ import {
   Eraser,
   Reset,
   Download,
-} from "../theme/svg";
+} from "../../theme/svg";
 import ColourPicker from "./ColourPicker";
 import { download } from "./download";
+
+export interface typeSwatch {
+  toolType: any;
+  setToolType: any;
+  width: any;
+  setWidth: any;
+  setElements: any;
+  setColorWidth: any;
+  setPath: any;
+  colorWidth: any;
+  setShapeWidth: any;
+}
 
 export default function Swatch({
   toolType,
@@ -27,7 +39,7 @@ export default function Swatch({
   setPath,
   colorWidth,
   setShapeWidth,
-}) {
+}: typeSwatch) {
   const [displayStroke, setDisplayStroke] = useState(false);
 
   const handleClickStroke = () => {
@@ -37,24 +49,24 @@ export default function Swatch({
 
   const increaseWidth = () => {
     if (toolType === "brush" || toolType === "eraser") {
-      if (width < 30) setWidth((prev) => prev + 5);
+      if (width < 30) setWidth((prev: any) => prev + 5);
     }
     if (toolType === "pencil") {
-      if (width < 15) setWidth((prev) => prev + 3);
+      if (width < 15) setWidth((prev: any) => prev + 3);
     }
     if (toolType === ("triangle" || "rectangle" || "circle")) {
-      if (width < 15) setShapeWidth((prev) => prev + 3);
+      if (width < 15) setShapeWidth((prev: any) => prev + 3);
     }
   };
   const decreaseWidth = () => {
     if (toolType === "brush" || toolType === "eraser") {
-      if (width > 1) setWidth((prev) => prev - 5);
+      if (width > 1) setWidth((prev: any) => prev - 5);
     }
     if (toolType === "pencil") {
-      if (width > 1) setWidth((prev) => prev - 3);
+      if (width > 1) setWidth((prev: any) => prev - 3);
     }
     if (toolType === ("triangle" || "rectangle" || "circle")) {
-      if (width > 1) setShapeWidth((prev) => prev - 3);
+      if (width > 1) setShapeWidth((prev: any) => prev - 3);
     }
   };
   return (

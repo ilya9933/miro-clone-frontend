@@ -1,8 +1,27 @@
-import rough from "roughjs/bundled/rough.esm";
+import rough from "roughjs";
+import { Drawable } from "roughjs/bin/core";
 const generator = rough.generator();
 
-export function createElement(id: number, x1: number, y1: number, x2: number, y2: number, type: number, width: number, strokeColor: number) {
-  let roughElement = null;
+export type DrawingElement =   { 
+  
+    id: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    type: string;
+    roughElement?: Drawable ;
+    width: number;
+    strokeColor: string;
+    strokeWidth?: number;
+    offsetX?: number;
+    offsetY?:number;
+    shapeWidth?:number;
+    position?: string;
+
+}
+export function createElement(id: DrawingElement["id"], x1: DrawingElement["x1"], y1: number, x2: number, y2: number, type: string, width: number, strokeColor: string) : DrawingElement {
+  let roughElement : Drawable ;
   //console.log("calling create element....");
   switch (type) {
     case "line":
@@ -43,7 +62,7 @@ export function createElement(id: number, x1: number, y1: number, x2: number, y2
       );
       break;
     default:
-      generator.line(0, 0, 0, 0);
+      roughElement = generator.line(0, 0, 0, 0);
   }
 
   return {
@@ -58,10 +77,10 @@ export function createElement(id: number, x1: number, y1: number, x2: number, y2
     strokeColor,
   };
 }
-const nearPoint = (x, y, x1, y1, name) => {
+const nearPoint = (x:number, y:number, x1:number, y1:number, name: string) => {
   return Math.abs(x - x1) < 5 && Math.abs(y - y1) < 5 ? name : null;
 };
-const positionWithinElement = (x, y, element) => {
+const positionWithinElement = (x:number, y:number, element: any) => {
   const { type, x1, x2, y1, y2 } = element;
   if (type === "rectangle") {
     const topLeft = nearPoint(x, y, x1, y1, "tl");
@@ -81,19 +100,19 @@ const positionWithinElement = (x, y, element) => {
     return start || end || inside;
   }
 };
-const distance = (a, b) =>
+const distance = (a: any, b: any) =>
   Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
-export const getElementAtPosition = (x, y, elements) => {
+export const getElementAtPosition = (x:number, y:number, elements: any) => {
   return elements
-    .map((ele) => ({
+    .map((ele: any) => ({
       ...ele,
       position: positionWithinElement(x, y, ele),
     }))
-    .find((ele) => ele.position !== null);
+    .find((ele: any) => ele.position !== null);
 };
 
-export const adjustElementCoordinates = (element) => {
+export const adjustElementCoordinates = (element: any) => {
   const { type, x1, y1, x2, y2 } = element;
   if (type === "rectangle") {
     const minX = Math.min(x1, x2);
@@ -109,7 +128,7 @@ export const adjustElementCoordinates = (element) => {
     }
   }
 };
-export const cursorForPosition = (position) => {
+export const cursorForPosition = (position: string) => {
   switch (position) {
     case "tl":
     case "br":
@@ -123,7 +142,7 @@ export const cursorForPosition = (position) => {
       return "move";
   }
 };
-export const resizedCoordinates = (clientX, clientY, position, coordinates) => {
+export const resizedCoordinates = (clientX: number, clientY:number, position:string, coordinates:any) => {
   const { x1, y1, x2, y2 } = coordinates;
   switch (position) {
     case "tl":
@@ -141,7 +160,7 @@ export const resizedCoordinates = (clientX, clientY, position, coordinates) => {
   }
 };
 
-export const midPointBtw = (p1, p2) => {
+export const midPointBtw = (p1:any, p2:any) => {
   return {
     x: p1.x + (p2.x - p1.x) / 2,
     y: p1.y + (p2.y - p1.y) / 2,
